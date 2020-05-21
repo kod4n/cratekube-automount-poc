@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hello-world-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: hello-world
+  template:
+    metadata:
+      labels:
+        name: hello-world
+    spec:
+      containers:
+      - name: hello-world
+        image: tutum/hello-world
+        volumeMounts:
+        - name: automount-pv-storage
+          mountPath: /auto
+          mountPropagation: HostToContainer
+      volumes:
+      - name: automount-pv-storage
+        persistentVolumeClaim:
+          claimName: automount-pv-claim

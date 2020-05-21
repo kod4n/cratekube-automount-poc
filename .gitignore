@@ -1,0 +1,12 @@
+*
+
+!app
+!app/**/*
+
+!deployments
+!deployments/**/*
+
+!.gitignore
+!Dockerfile
+!LICENSE
+!README.md

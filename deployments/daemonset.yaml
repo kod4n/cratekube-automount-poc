@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: automount-poc-daemonset
+spec:
+  selector:
+    matchLabels:
+      name: automount-poc-daemonset
+  template:
+    metadata:
+      labels:
+        name: automount-poc-daemonset
+    spec:
+      hostPID: true
+      dnsConfig:
+        ## depending on the automount config a specific dns search may need to be supplied
+        searches: ['change.this.domain']
+      containers:
+      - name: automount-poc
+        ## an image will first need to be pushed to a docker repo before deploying
+        image: '<user>/<repo>:<version>'
+        env:
+        - name: AUTOFS_USER
+          valueFrom:
+            secretKeyRef:
+              name: autofs-config
+              key: user
+        - name: AUTOFS_PASS
+          valueFrom:
+            secretKeyRef:
+              name: autofs-config
+              key: password
+        securityContext:
+          ## using the current strategy privileged mode and the below capabilities
+          ## are required for the automounts to be properly mounted
+          privileged: true
+          capabilities:
+            add: ['SYS_ADMIN', 'DAC_READ_SEARCH']
+        volumeMounts:
+        - name: automount-pv-storage
+          mountPath: /auto
+          mountPropagation: Bidirectional
+      volumes:
+      - name: automount-pv-storage
+        persistentVolumeClaim:
+          claimName: automount-pv-claim
+
